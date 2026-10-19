@@ -355,13 +355,6 @@ interpretações sem evidência. As assinaturas de referência só devem ser atu
 - Os desenhos usam uma seleção explícita de caracteres e limitam palavras por caractere;
   as estatísticas usam toda a seleção atual, e o layout não é medida de similaridade.
 
-O passo qualitativo já está incluído nas 20 fichas. Antes de usar suas observações como
-conclusões linguísticas, o grupo deve revisar as leituras e, sobretudo nos contrastes aparentes,
-consultar exemplos de uso. As fichas sustentam uma discussão de palavras específicas,
-sem validar uma afirmação geral de divergência semântica dos caracteres ou das línguas.
-
-Antes da entrega, preencher o link do vídeo.
-
 ## Referências e créditos
 
 - CC-CEDICT e seus colaboradores, distribuído pelo [MDBG](https://www.mdbg.net/chinese/dictionary?page=cedict).

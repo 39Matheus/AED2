@@ -26,6 +26,10 @@
   },
   "projecao": "matriz de incidencia esparsa: B.T @ B, sem diagonal",
   "metricas_adicionais": "grau da projecao, forca, core_number e clustering exatos",
+  "selecao_visual": {
+    "modo": "manual",
+    "arquivo": "selecao_caracteres.json"
+  },
   "versoes": {
     "python": "3.12.14",
     "networkx": "3.4.2",

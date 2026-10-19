@@ -154,6 +154,43 @@ As projeções são calculadas pela matriz esparsa de incidência (`B.T @ B`), c
 inteiras e diagonal removida. Grau, força, core e clustering são calculados exatamente
 nas projeções da seleção inteira. As figuras continuam usando recortes legíveis.
 
+### Seleção dos caracteres nos desenhos
+
+O controle visual foi integrado da versão `LOTUS_top_frequency_para_manual.ipynb`
+do grupo. Ele atua depois das análises e não filtra os dicionários, as projeções ou
+as métricas globais. A configuração salva usa as listas manuais dessa versão:
+
+```python
+SHARED_CHAR_MODE = "manual"  # "top_frequency", "random" ou "manual"
+SHARED_CHAR_COUNT = 18
+SHARED_CHAR_SEED = 42
+```
+
+- **`top_frequency`:** prioriza o menor grau entre chinês e japonês, depois a soma
+  dos graus e o caractere. Conta grafias distintas conectadas, não frequência de uso.
+- **`random`:** sorteia até `SHARED_CHAR_COUNT` caracteres realmente compartilhados,
+  com semente fixa.
+- **`manual`:** usa `MANUAL_SHARED_CHARS_TRAD` e `MANUAL_SHARED_CHARS_SIMP`, separadamente.
+  Preserva a ordem, remove duplicatas e avisa sobre caracteres ausentes de um dos
+  idiomas na seleção atual. A lista inteira é considerada nesse modo.
+
+Para fixar um ranking, execute com `top_frequency`, copie as duas listas Python
+impressas na seção 11.1 para as variáveis manuais e mude para `manual`. As figuras
+estáticas e as redes interativas respeitam a mesma seleção explícita. Os limites
+`COMPARE_CHARS` e `INTERACTIVE_MAX_CHARS`, ambos em 18, podem reduzir somente o
+número de caracteres desenhados; os limites de palavras por caractere também
+continuam ativos para legibilidade.
+
+Se alterar apenas os controles `SHARED_CHAR_*` ou as listas manuais, pode executar
+novamente a configuração e as seções 11–13 para refazer os desenhos e seu registro. Se alterar
+`USE_SAMPLE` ou os limites de dados, execute o notebook inteiro. A comparação
+simplificado × tradicional mantém seu desenho de pares da mesma entrada e sua
+seleção automática de caracteres na rede interativa.
+
+As listas selecionadas, sugestões de ranking, contagens e ausências ficam em
+[resultados/selecao_caracteres.json](resultados/selecao_caracteres.json). “Manual”
+significa escolher caracteres para os desenhos; não é uma avaliação de significados.
+
 Saídas:
 
 - `resultados/limpeza.csv` e `resumo_redes.csv`: cobertura e estrutura.
@@ -162,6 +199,7 @@ Saídas:
 - `resultados/contextos_*.csv` e `conclusoes.csv`: graus, contextos e Jaccard.
 - `resultados/metricas_caracteres_*.csv` e `resumo_projecoes.csv`: grau da
   projeção, força, core, clustering e resumo das estruturas.
+- `resultados/selecao_caracteres.json`: configuração e listas utilizadas nos desenhos.
 - `resultados/figuras/`: quatro PNGs gerados pelo código.
 - [resultados/grafos/](resultados/grafos/): três HTMLs interativos incluídos no Git.
   As redes são embutidas no notebook por padrão (`INTERACTIVE_INLINE = True`).
@@ -266,7 +304,7 @@ a diferença entre suas médias não isola um efeito da variante escrita.
   caracteres variantes não são convertidos automaticamente.
 - A projeção perde a identidade das palavras e cria cliques para palavras longas.
   Por isso não inferimos comunidades semânticas a partir de triângulos.
-- Os desenhos priorizam hubs e limitam palavras por caractere, para legibilidade;
+- Os desenhos usam uma seleção explícita de caracteres e limitam palavras por caractere;
   as estatísticas usam toda a seleção atual, e o layout não é medida de similaridade.
 
 Próximo passo suficiente para este escopo: selecionar alguns caracteres com mais

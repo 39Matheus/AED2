@@ -51,8 +51,9 @@ em `data/raw/`, fora do Git. Para atualizar, remova os dois arquivos `.gz`.
 O manifesto registra URL, tamanho, SHA-256 e primeira leitura de cada cópia.
 Os arquivos oficiais mudam com o tempo: resultados idênticos exigem os mesmos
 arquivos e parâmetros, não apenas a mesma semente. O registro desta execução está
-em [resultados/execucao.json](resultados/execucao.json), e as unidades amostradas
-foram preservadas nos CSVs.
+em [resultados/execucao.json](resultados/execucao.json). No modo amostral, as unidades
+selecionadas também são preservadas nos CSVs; no modo completo, os arquivos oficiais, seus
+hashes e o código de limpeza permitem reconstruir a população elegível.
 
 Limpeza:
 
@@ -61,8 +62,9 @@ Limpeza:
 3. Preserva todas as grafias `keb` do JMdict e respeita restrições de grafia/leitura
    ao reunir definições. Formas sem Han ficam fora.
 4. Agrupa sentidos repetidos por par de grafias chinesas e por grafia japonesa.
-5. Seleciona, sem reposição e com semente 42, 5.000 pares chineses e 5.000 grafias
-   japonesas. A amostra é extraída depois da limpeza, em vez das primeiras linhas.
+5. Com `USE_SAMPLE = False`, considera todas as unidades elegíveis após a limpeza.
+   Com `USE_SAMPLE = True`, seleciona sem reposição, com semente 42, até `N_CN` pares
+   chineses e `N_JP` grafias japonesas (5.000 por padrão).
 6. Ao construir cada rede, reúne novamente as palavras por grafia da variante;
    cada caractere aparece uma vez por palavra, mesmo se repetido na escrita.
 
@@ -75,14 +77,18 @@ Definições agrupadas não alinham sentidos entre línguas. Os dicionários nã
 | Nós de palavra | Uma forma escrita por idioma/variante; prefixos diferentes evitam fundir palavras chinesas e japonesas. |
 | Nós de caractere | Um caractere Han; coincidência do código Unicode permite conectar as redes. |
 | Aresta bipartida | A palavra contém o caractere; presença binária, sem direção e sem peso. |
-| Grau do caractere | Número de formas escritas distintas que o contêm na amostra. |
+| Grau do caractere | Número de formas escritas distintas que o contêm na seleção atual. |
 | Grau relativo | Grau dividido pelo número de palavras da rede; ajuda a comparar tamanhos diferentes. |
 | Projeção | Caracteres ligados por ocorrência numa mesma palavra; peso = quantidade de palavras distintas em comum. |
 | Jaccard | Interseção/união dos vizinhos das projeções, no universo de caracteres compartilhados daquela comparação; ignora pesos. |
 | Contextos vazios | Se a união é vazia, Jaccard fica indefinido (`NaN`). |
+| Grau na projeção | Número de caracteres distintos que coocorrem com o caractere em palavras. |
+| Força | Soma dos pesos de coocorrência com todos os parceiros; palavras longas contribuem para mais pares. |
+| Número de núcleo | Maior `k` de um k-core que contém o caractere; mede inserção numa estrutura de conexões internas. |
+| Clustering | Fração de pares de vizinhos também conectados; calculado na projeção, sem pesos. |
 
 As métricas usam três grafos bipartidos puros: japonês, chinês tradicional e
-simplificado. As duas variantes chinesas vêm dos mesmos pares amostrados.
+simplificado. As duas variantes chinesas vêm dos mesmos pares selecionados.
 Na visualização interativa simplificado × tradicional, um grafo separado recebe
 arestas entre formas da mesma entrada do CC-CEDICT. Essas relações não entram na
 densidade bipartida, nas componentes ou nas projeções analisadas.
@@ -101,14 +107,19 @@ As referências abaixo usam os títulos das seções, estáveis mesmo após inse
 | Componentes conexas | 4 | §7; `nx.connected_components` | Mostrar fragmentação e tamanho da maior componente. |
 | Redes bipartidas | 6 | §6; `build_word_character_graph`, verificações de partições | Representar palavras e caracteres sem misturar tipos de relação. |
 | Matriz de incidência | 6 | §8; `incidence_example` | Inspecionar presença de caracteres por palavra. |
-| Projeção e coocorrência | 6 | §9; `weighted_projected_graph` | Construir contextos de caracteres ligados por palavras. |
-| Jaccard | 6 | §9; `compare_contexts` | Comparar conjuntos de contextos e explicitar suporte e casos indefinidos. |
+| Projeção e coocorrência | 6 | §9; `project_characters`, matriz esparsa `B.T @ B` | Contar palavras compartilhadas por pares de caracteres sem formar uma matriz densa. |
+| Jaccard | 6 | §9; `compare_contexts` | Adaptar a comparação de conjuntos para os vizinhos do mesmo caractere entre idiomas. |
+| Grau na projeção e força | 6 | §9.1; `projection.degree`, `degree(weight="weight")` | Separar diversidade de parceiros e volume acumulado de coocorrências. |
+| K-core, core number e degenerescência | 5 e 6 | §9.1; `nx.core_number` | Identificar inserção nos núcleos e tamanho do núcleo mais interno. |
+| Clustering | 4 e 6 | §9.1; `nx.clustering` | Medir o fechamento entre parceiros, reconhecendo os cliques criados pela projeção. |
 
 ## Como executar
 
 **Colab:** abra o link acima e execute todas as células na ordem. A seção 2 instala
 as bibliotecas com versões fixadas. Para rótulos CJK, instale `fonts-noto-cjk`
 se a fonte estiver ausente e reinicie o kernel. A análise funciona sem essa fonte.
+Mesmo instalada, a fonte pode não cobrir algum Han raro das figuras; os caracteres
+originais são preservados nas tabelas e nos cálculos.
 
 **Localmente:** Python 3.11 recomendado. A partir da raiz do repositório:
 
@@ -116,7 +127,7 @@ se a fonte estiver ausente e reinicie o kernel. A análise funciona sem essa fon
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-jupyter execute LOTUS.ipynb --inplace --timeout=600
+jupyter execute LOTUS.ipynb --inplace --timeout=1800
 ```
 
 No Windows, ative com `.venv\Scripts\activate`. Alternativamente, abra o notebook
@@ -124,45 +135,120 @@ em seu ambiente Jupyter e execute todas as células. A primeira execução reque
 internet; as demais reaproveitam o cache. Em Linux, a fonte pode ser instalada com
 `sudo apt-get install fonts-noto-cjk` antes de iniciar o kernel.
 
-Parâmetros da seção 2: `N_CN`, `N_JP`, `SEED` e `INTERACTIVE_INLINE`. O valor `-1`
-usa uma fonte inteira, com maior custo de memória e projeção. `MIN_SUPPORT = 3`
-na seção 9 filtra apenas o ranking; os CSVs preservam todos os resultados.
+Na seção 2, escolha o modo:
+
+```python
+USE_SAMPLE = False  # população completa: todos os registros elegíveis após a limpeza
+N_CN = 5000        # estes limites só são aplicados se USE_SAMPLE = True
+N_JP = 5000
+SEED = 42
+```
+
+`USE_SAMPLE = True` permite uma execução menor e reproduzível. A configuração salva
+usa `False`, como na execução com populações completas registrada abaixo. Não há
+detecção automática de nuvem/Colab para mudar a seleção silenciosamente.
+`MIN_SUPPORT = 3` na seção 9 filtra apenas os rankings; os CSVs de métricas preservam
+todos os caracteres. `INTERACTIVE_INLINE = True` mantém os grafos no notebook.
+
+As projeções são calculadas pela matriz esparsa de incidência (`B.T @ B`), com contagens
+inteiras e diagonal removida. Grau, força, core e clustering são calculados exatamente
+nas projeções da seleção inteira. As figuras continuam usando recortes legíveis.
 
 Saídas:
 
 - `resultados/limpeza.csv` e `resumo_redes.csv`: cobertura e estrutura.
-- `resultados/amostra_cn.csv` e `amostra_jp.csv`: dados efetivamente analisados.
+- `resultados/amostra_cn.csv` e `amostra_jp.csv`: somente no modo amostral;
+  no modo completo, são removidos para evitar confusão com resultados antigos.
 - `resultados/contextos_*.csv` e `conclusoes.csv`: graus, contextos e Jaccard.
+- `resultados/metricas_caracteres_*.csv` e `resumo_projecoes.csv`: grau da
+  projeção, força, core, clustering e resumo das estruturas.
 - `resultados/figuras/`: quatro PNGs gerados pelo código.
 - [resultados/grafos/](resultados/grafos/): três HTMLs interativos incluídos no Git.
   As redes são embutidas no notebook por padrão (`INTERACTIVE_INLINE = True`).
   Execute no Colab/Jupyter para interagir ou baixe os HTMLs e abra no navegador.
   O visualizador de notebooks do GitHub não executa JavaScript.
 
-## Resultados
+## Resultados e interpretação
 
-Execução com `N_CN = N_JP = 5000` e `SEED = 42`:
+Execução verificada em IPython na nuvem, com todas as células em sequência (cerca de
+quatro minutos e pico de 2 GB nesta máquina).
 
-| Rede | Palavras | Caracteres | Arestas | Componentes | Nós na maior componente |
+Execução com **`USE_SAMPLE = False`**: todos os **122.753 pares
+chineses** e **227.076 grafias japonesas** elegíveis dos arquivos
+registrados no manifesto. Esses totais já excluem formas sem Han e agrupam registros repetidos;
+não equivalem à contagem de todas as linhas brutas nem a toda a população de usos das línguas.
+
+| Rede bipartida | Palavras distintas | Caracteres | Arestas | Componentes | Nós na maior componente |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Chinês tradicional | 5.000 | 3.229 | 12.920 | 433 | 88,52% |
-| Chinês simplificado | 4.998 | 3.155 | 12.918 | 410 | 88,97% |
-| Japonês | 5.000 | 2.325 | 12.572 | 156 | 95,15% |
+| Chinês tradicional | 122.667 | 11.686 | 316.008 | 5.184 | 91,99% |
+| Chinês simplificado | 121.481 | 10.771 | 314.481 | 4.484 | 92,92% |
+| Japonês | 227.076 | 6.042 | 578.497 | 493 | 99,51% |
 
-Os 5.000 pares chineses selecionados resultam em 4.998 grafias simplificadas
-distintas, pois alguns pares compartilham a mesma forma simplificada.
+As duas redes chinesas podem ter quantidades diferentes de palavras, porque pares distintos
+podem compartilhar uma grafia de determinada variante. Grau bipartido conta grafias contendo
+um caractere, e grau relativo é a proporção dessas grafias no dicionário representado.
+Uma maior componente grande indica que muitas palavras/caracteres podem ser alcançados por
+cadeias de compartilhamento ortográfico; não implica semelhança de significado.
 
-Há **1.517 caracteres compartilhados** entre japonês/tradicional e **1.162** entre
-japonês/simplificado. O Jaccard é definido para 1.504 e 1.146 caracteres, respectivamente;
-1.052 e 803 desses valores são zero. As medianas são zero e as médias são cerca de
-0,0273 e 0,0278. Com suporte de pelo menos três palavras em cada idioma, restam
-681 e 547 caracteres para os rankings exploratórios.
+A densidade bipartida é baixa porque cada palavra contém poucos caracteres entre milhares
+de possibilidades. Comparar apenas densidade ou número de arestas entre dicionários com
+coberturas diferentes não permite concluir qual língua é mais rica ou usada.
 
-Nesta amostra, a sobreposição dos contextos observados é pequena. Isso responde à
-pergunta sobre a estrutura observada, mas a baixa cobertura de palavras por
-caractere impede concluir que seus significados divergem. O maior compartilhamento
-gráfico com o tradicional também não demonstra maior equivalência semântica.
-As médias usam universos diferentes; não isolam um efeito da variante escrita.
+| Projeção | Parceiros por caractere (média) | Força média | Clustering médio | Degenerescência | Caracteres no núcleo principal |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Chinês tradicional | 30,77 | 56,68 | 0,1808 | 105 | 427 |
+| Chinês simplificado | 33,20 | 61,41 | 0,1903 | 107 | 356 |
+| Japonês | 73,88 | 211,99 | 0,3498 | 170 | 395 |
+
+**Como ler as novas métricas:** o grau da projeção conta parceiros distintos; a força
+soma quantas palavras sustentam as coocorrências com esses parceiros. O número de núcleo
+indica em que estrutura de conexões internas o caractere permanece após retirar periferias.
+A degenerescência é o `k` do núcleo mais interno; todos os seus caracteres têm pelo menos
+`k` parceiros nesse núcleo. Clustering é a proporção de pares de parceiros também ligados;
+a média inclui zero para graus menores que dois. São medidas de organização ortográfica.
+
+Há caracteres isolados nas projeções: 5.068 no tradicional, 4.369 no simplificado e
+443 no japonês. Suas formas
+contêm apenas um Han distinto. Eles continuam ligados a palavras na rede bipartida,
+contam como componentes na projeção e contribuem com zero para a média de clustering.
+Isso ajuda a interpretar a diferença de fragmentação e de médias entre dicionários.
+
+Exemplos calculados nesta execução:
+
+- **Chinês tradicional, 不:** aparece em 2.190 grafias, tem 1.562 parceiros e força 6.789. Seu número de núcleo é 105.
+- **Chinês simplificado, 不:** aparece em 2.187 grafias, tem 1.543 parceiros e força 6.780. Seu número de núcleo é 107.
+- **Japonês, 学:** aparece em 4.271 grafias, tem 1.207 parceiros e força 16.708. Seu número de núcleo é 170.
+
+Uma mesma palavra pode contribuir para vários pares: palavras longas elevam força, core e
+clustering por criarem cliques na projeção. Esses valores não contam sentidos e não demonstram
+comunidades semânticas. A seção 10 mostra palavras, leituras e definições para inspeção.
+
+| Comparação com japonês | Caracteres compartilhados | Jaccard definido | Média | Mediana | Jaccard zero | Com suporte ≥ 3 nos dois idiomas |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Chinês tradicional | 5.353 | 5.181 | 0,1204 | 0,0870 | 1.436 | 3.488 |
+| Chinês simplificado | 3.599 | 3.434 | 0,1351 | 0,1053 | 909 | 2.475 |
+
+Jaccard compara os conjuntos de parceiros do mesmo caractere entre idiomas, considerando
+apenas o universo compartilhado daquela comparação. Um resultado de 0,20 significa que
+20% dos parceiros na união dos contextos aparecem nos dois conjuntos; zero significa que
+não há parceiro em comum nesse universo. Quando os dois contextos são vazios, o valor é
+indefinido, não zero ou um. A tabela `conclusoes.csv` também informa a média após o filtro
+de suporte, para que poucos registros não dominem a leitura dos rankings.
+
+Na população completa, as médias de Jaccard são aproximadamente **12,04%**
+(tradicional/japonês) e **13,51%** (simplificado/japonês). As medianas são menores:
+**8,70%** e **10,53%**. Portanto, o caractere central da distribuição tem uma fração
+relativamente pequena de parceiros compartilhados no universo considerado, embora
+existam caracteres com sobreposição maior. Isso descreve combinações, não uma porcentagem
+de equivalência de significados.
+
+A resposta à pergunta é uma comparação de **contextos ortográficos dicionarizados**:
+existem caracteres e combinações compartilhadas, com níveis de sobreposição distintos
+mostrados nos rankings. Usar a população completa elimina a perda por amostragem desta
+execução, mas não as diferenças editoriais e de cobertura das fontes. Jaccard baixo
+continua sem demonstrar divergência de sentido; alto também não garante equivalência.
+As comparações tradicional/japonês e simplificado/japonês usam universos diferentes, então
+a diferença entre suas médias não isola um efeito da variante escrita.
 
 ![Distribuição do Jaccard](resultados/figuras/jaccard_contextos.png)
 
@@ -170,8 +256,8 @@ As médias usam universos diferentes; não isolam um efeito da variante escrita.
 
 ## Limitações e próximos passos
 
-- A amostra pequena perde vizinhos; zeros de Jaccard podem decorrer da amostragem.
-  Aumentar `N_CN`/`N_JP` e repetir com outras sementes ajuda a avaliar estabilidade.
+- No modo amostral, vizinhos ausentes podem reduzir o Jaccard e fragmentar a rede.
+  A execução completa elimina essa perda específica, mantendo os limites das fontes e do modelo.
 - Os dicionários têm políticas editoriais e coberturas distintas. Igualar o número
   de unidades amostradas não iguala frequência ou familiaridade.
 - As variantes japonesas entram como grafias distintas e os homógrafos se unem
@@ -181,7 +267,7 @@ As médias usam universos diferentes; não isolam um efeito da variante escrita.
 - A projeção perde a identidade das palavras e cria cliques para palavras longas.
   Por isso não inferimos comunidades semânticas a partir de triângulos.
 - Os desenhos priorizam hubs e limitam palavras por caractere, para legibilidade;
-  as estatísticas usam toda a amostra, e o layout não é medida de similaridade.
+  as estatísticas usam toda a seleção atual, e o layout não é medida de similaridade.
 
 Próximo passo suficiente para este escopo: selecionar alguns caracteres com mais
 suporte, examinar suas palavras/definições e escrever uma interpretação qualitativa.
@@ -199,4 +285,10 @@ Antes da entrega, preencher o link do vídeo.
   [Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
   Os CSVs de amostras contêm dados derivados dessas fontes e mantêm esses créditos e licença.
 - [NetworkX: redes bipartidas e projeções](https://networkx.org/documentation/stable/reference/algorithms/bipartite.html).
-- Material da disciplina, semanas 2, 4 e 6. Disponível no [Github do Professor](https://github.com/ivanovitchm/datastructure)
+- Material do professor, conferido no commit `d28b316438a64d9abd5f754a66685d507d5b2764`:
+  [semana 2, aula 3](https://github.com/ivanovitchm/datastructure/blob/main/lessons/week02/lesson03.ipynb),
+  [semana 4, prática §9](https://github.com/ivanovitchm/datastructure/blob/main/lessons/week04/practice.ipynb),
+  [semana 5, aula 7 §2](https://github.com/ivanovitchm/datastructure/blob/main/lessons/week05/lesson07.ipynb) e
+  [semana 6, aula 8 §5.6–5.8](https://github.com/ivanovitchm/datastructure/blob/main/lessons/week06/lesson08.ipynb).
+  A aula 8 calcula grau, força, core e clustering de redes de coocorrência; o Jaccard
+  do projeto adapta a comparação de conjuntos para os contextos entre idiomas.

@@ -1,6 +1,6 @@
 {
-  "N_CN": 1000,
-  "N_JP": 1000,
+  "N_CN": 5000,
+  "N_JP": 5000,
   "seed": 42,
   "min_support": 3,
   "font_cjk": true,
@@ -9,13 +9,13 @@
       "url": "https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.txt.gz",
       "sha256": "2d42d41f75df8708d9d9b236d8ae15ecf1cef525aef8ebb8499a74cb09e1b096",
       "bytes": 3981631,
-      "primeira_leitura_utc": "2026-10-19T19:54:44.921128+00:00"
+      "primeira_leitura_utc": "2026-10-19T19:52:57.377750+00:00"
     },
     "JMdict_e.gz": {
       "url": "https://ftp.edrdg.org/pub/Nihongo/JMdict_e.gz",
       "sha256": "e84b7515b481485fe17f79939144bfbbd545638676899849512c99959ec03c1e",
       "bytes": 10586544,
-      "primeira_leitura_utc": "2026-10-19T19:54:47.796925+00:00"
+      "primeira_leitura_utc": "2026-10-19T19:52:57.871771+00:00"
     }
   },
   "versoes": {

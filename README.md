@@ -61,7 +61,7 @@ Limpeza:
 3. Preserva todas as grafias `keb` do JMdict e respeita restrições de grafia/leitura
    ao reunir definições. Formas sem Han ficam fora.
 4. Agrupa sentidos repetidos por par de grafias chinesas e por grafia japonesa.
-5. Seleciona, sem reposição e com semente 42, mil pares chineses e mil grafias
+5. Seleciona, sem reposição e com semente 42, 5.000 pares chineses e 5.000 grafias
    japonesas. A amostra é extraída depois da limpeza, em vez das primeiras linhas.
 6. Ao construir cada rede, reúne novamente as palavras por grafia da variante;
    cada caractere aparece uma vez por palavra, mesmo se repetido na escrita.
@@ -134,24 +134,29 @@ Saídas:
 - `resultados/amostra_cn.csv` e `amostra_jp.csv`: dados efetivamente analisados.
 - `resultados/contextos_*.csv` e `conclusoes.csv`: graus, contextos e Jaccard.
 - `resultados/figuras/`: quatro PNGs gerados pelo código.
-- `resultados/grafos/`: três HTMLs interativos, gerados localmente e ignorados no Git.
-  Abra-os no navegador ou use `INTERACTIVE_INLINE = True` para embutir no notebook.
+- [resultados/grafos/](resultados/grafos/): três HTMLs interativos incluídos no Git.
+  As redes são embutidas no notebook por padrão (`INTERACTIVE_INLINE = True`).
+  Execute no Colab/Jupyter para interagir ou baixe os HTMLs e abra no navegador.
+  O visualizador de notebooks do GitHub não executa JavaScript.
 
 ## Resultados
 
-Execução com `N_CN = N_JP = 1000` e `SEED = 42`:
+Execução com `N_CN = N_JP = 5000` e `SEED = 42`:
 
 | Rede | Palavras | Caracteres | Arestas | Componentes | Nós na maior componente |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Chinês tradicional | 1.000 | 1.398 | 2.572 | 209 | 75,73% |
-| Chinês simplificado | 1.000 | 1.391 | 2.572 | 205 | 76,04% |
-| Japonês | 1.000 | 1.127 | 2.564 | 113 | 84,44% |
+| Chinês tradicional | 5.000 | 3.229 | 12.920 | 433 | 88,52% |
+| Chinês simplificado | 4.998 | 3.155 | 12.918 | 410 | 88,97% |
+| Japonês | 5.000 | 2.325 | 12.572 | 156 | 95,15% |
 
-Há **533 caracteres compartilhados** entre japonês/tradicional e **429** entre
-japonês/simplificado. O Jaccard é definido para 519 e 417 caracteres, respectivamente;
-451 e 363 desses valores são zero. As medianas são zero e as médias são cerca de
-0,0194 e 0,0192. Com suporte de pelo menos três palavras em cada idioma, restam
-117 e 99 caracteres para os rankings exploratórios.
+Os 5.000 pares chineses selecionados resultam em 4.998 grafias simplificadas
+distintas, pois alguns pares compartilham a mesma forma simplificada.
+
+Há **1.517 caracteres compartilhados** entre japonês/tradicional e **1.162** entre
+japonês/simplificado. O Jaccard é definido para 1.504 e 1.146 caracteres, respectivamente;
+1.052 e 803 desses valores são zero. As medianas são zero e as médias são cerca de
+0,0273 e 0,0278. Com suporte de pelo menos três palavras em cada idioma, restam
+681 e 547 caracteres para os rankings exploratórios.
 
 Nesta amostra, a sobreposição dos contextos observados é pequena. Isso responde à
 pergunta sobre a estrutura observada, mas a baixa cobertura de palavras por
@@ -182,7 +187,7 @@ Próximo passo suficiente para este escopo: selecionar alguns caracteres com mai
 suporte, examinar suas palavras/definições e escrever uma interpretação qualitativa.
 Uma afirmação sobre divergência semântica precisaria dessa validação adicional.
 
-Antes da entrega, preencher os integrantes e o link do vídeo.
+Antes da entrega, preencher o link do vídeo.
 
 ## Referências e créditos
 

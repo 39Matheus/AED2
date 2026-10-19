@@ -1,4 +1,4 @@
-# L.O.T.U.S. — contextos lexicais em chinês e japonês
+# L.O.T.U.S. (Linguística Oriental: Topologia de Usos Semânticos): contextos lexicais em chinês e japonês
 
 Projeto da Unidade 1 de Algoritmos e Estruturas de Dados II. Redes de palavras e
 caracteres construídas a partir de dois dicionários reais, com análise em um único
@@ -8,20 +8,13 @@ notebook: [LOTUS.ipynb](LOTUS.ipynb).
 
 ## Integrantes
 
-- [INTEGRANTE 1]
-- [INTEGRANTE 2]
-- [INTEGRANTE 3]
-
-Preencher os nomes completos e remover as marcações excedentes se a equipe tiver
-menos de três integrantes.
+- Bárbara Lima Cordeiro da Silva ; 20220013738
+- Mateus Vinicius Figueredo de Araújo; 20260000707
+- Matheus Bezeril Pinto ; 20260000716
 
 ## Vídeo
 
 [LINK DO VÍDEO NO YOUTUBE]
-
-Pendente de preenchimento. O projeto pede até 15 minutos no total, com todos os
-integrantes visíveis e com a câmera aberta em cada vídeo. O link precisa estar
-acessível ao avaliador; um vídeo não listado é permitido.
 
 ## Problema e pergunta
 
@@ -34,9 +27,12 @@ A estrutura da rede importa porque o contexto de um caractere é definido pelos
 outros caracteres ligados a ele por palavras. O projeto permite explorar esses
 contextos e inspecionar palavras/definições, sem exigir um sistema de tradução.
 
-A divergência semântica da proposta original é uma motivação, ainda sem validação:
-**a rede mede estrutura ortográfica, não similaridade de significado**. Jaccard
-baixo não identifica automaticamente um falso cognato.
+O código analisa como os caracteres se combinam nas palavras. As definições dos 
+dicionários estão disponíveis para consulta, mas não entram no cálculo do Jaccard.
+
+Por exemplo, 手紙 costuma significar “carta” em japonês e “papel higiênico” em chinês. 
+As formas têm os mesmos caracteres: a rede que registra apenas palavra → caracteres não 
+consegue reconhecer essa diferença de significado.
 
 ## Dados: fonte, obtenção e limpeza
 
@@ -70,8 +66,7 @@ Limpeza:
 6. Ao construir cada rede, reúne novamente as palavras por grafia da variante;
    cada caractere aparece uma vez por palavra, mesmo se repetido na escrita.
 
-Definições agrupadas não alinham sentidos entre línguas. Os dicionários não são
-corpora de frequência e incluem nomes próprios, termos especializados e variantes.
+Definições agrupadas não alinham sentidos entre línguas. Os dicionários não são bases de dados de frequência e incluem nomes próprios, termos especializados e variantes.
 
 ## Modelagem
 
@@ -199,4 +194,4 @@ Antes da entrega, preencher os integrantes e o link do vídeo.
   [Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
   Os CSVs de amostras contêm dados derivados dessas fontes e mantêm esses créditos e licença.
 - [NetworkX: redes bipartidas e projeções](https://networkx.org/documentation/stable/reference/algorithms/bipartite.html).
-- Material da disciplina, semanas 2, 4 e 6, e enunciado do projeto da Unidade 1.
+- Material da disciplina, semanas 2, 4 e 6, e enunciado do projeto da Unidade 1. Disponível em [Github do Professor](https://github.com/ivanovitchm/datastructure)

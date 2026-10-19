@@ -200,6 +200,9 @@ Saídas:
 - `resultados/metricas_caracteres_*.csv` e `resumo_projecoes.csv`: grau da
   projeção, força, core, clustering e resumo das estruturas.
 - `resultados/selecao_caracteres.json`: configuração e listas utilizadas nos desenhos.
+- `resultados/selecao_qualitativa.csv`: ranking dos 20 caracteres para leitura qualitativa.
+- [resultados/analise_qualitativa_20.csv](resultados/analise_qualitativa_20.csv): palavras,
+  definições completas, excertos, interpretações preliminares e ressalvas das 20 fichas.
 - `resultados/figuras/`: quatro PNGs gerados pelo código.
 - [resultados/grafos/](resultados/grafos/): três HTMLs interativos incluídos no Git.
   As redes são embutidas no notebook por padrão (`INTERACTIVE_INLINE = True`).
@@ -292,6 +295,51 @@ a diferença entre suas médias não isola um efeito da variante escrita.
 
 ![Exemplo da rede japonês × tradicional](resultados/figuras/japones_chines_tradicional.png)
 
+## Análise qualitativa de 20 caracteres
+
+As seções **10.1–10.2** do notebook acrescentam uma leitura de palavras e definições reais.
+Vinte caracteres é um recorte viável para exploração e discussão, sem representatividade
+estatística. Primeiro, ordenamos os caracteres compartilhados pelas três redes pelo menor
+grau entre elas, do maior para o menor. Os desempates usam a soma dos graus e a ordem Unicode;
+exigimos pelo menos três grafias em cada rede. Só depois escolhemos uma palavra ilustrativa
+de mesma grafia no japonês e em uma das variantes chinesas para cada caractere.
+
+O recorte da população completa é **子 大 人 不 一 山 水 中 心 生 地 天 自 性 小 家 白 海 有 化**.
+Seu suporte mínimo nas três redes varia de **651 a 1.818 grafias**. Esse suporte conta grafias
+distintas dicionarizadas, não frequência de uso. A seleção favorece caracteres bem documentados
+e não foi feita para comparar extremos de Jaccard. Ela é independente das listas dos desenhos.
+
+Cada ficha contém uma palavra distinta, o par tradicional/simplificado, leituras, todas as
+glosas agrupadas pelo parser, excertos literais, interpretação e ressalva. A interpretação
+é da **palavra e de suas acepções**, sem atribuir significado único ao caractere.
+
+Alguns resultados dessa leitura:
+
+- **火山**, para 山: ambas as fontes registram `volcano`, mostrando coincidência nesse sentido.
+- **大家**, para 大: há sobreposição em especialista, mas o chinês também registra “todos”
+  e o japonês, locador de imóvel. A palavra não cabe num rótulo único de igual ou diferente.
+- **天井**, para 天: o chinês inclui pátio e átrio, mas também `caisson ceiling`; o japonês
+  inclui teto e teto de preços. A oposição simples “pátio versus teto” esconderia essa sobreposição.
+- **有料**, para 有: o CC-CEDICT registra `impressive`, enquanto o JMdict registra cobrança,
+  pagamento e estrada com pedágio. Há um contraste nas entradas que merece exame em frases.
+- **化学**, para 化: o sentido de química coincide, mas a grafia japonesa corresponde à forma
+  chinesa simplificada; a forma tradicional da mesma entrada é 化學. Isso fica explícito na ficha.
+
+As 20 leituras estão no notebook e no [CSV de evidências](resultados/analise_qualitativa_20.csv).
+As notas foram redigidas com assistência de IA a partir dos verbetes, com conferência dos
+excertos e das assinaturas SHA-256 das glosas pelo código;
+**a revisão linguística pelo grupo permanece pendente**. Encontrar uma citação na fonte
+confirma a evidência textual, sem validar por si só a interpretação.
+Não foi acrescentado um classificador semântico nem uma nova dependência.
+
+As palavras são exemplos escolhidos para discussão, não uma amostra aleatória de usos.
+Não calculamos proporção de falsos cognatos nem correlação entre Jaccard e significado.
+As definições agregam leituras e acepções; uma glosa ausente não prova que o sentido inexista
+na língua. Frequência, registro, construções gramaticais e contexto ainda exigem consulta.
+Ao mudar a amostra ou atualizar as fontes, o código sinaliza exemplos ausentes, caracteres
+sem ficha e glosas alteradas, inclusive fora dos excertos citados, sem reaproveitar silenciosamente
+interpretações sem evidência. As assinaturas de referência só devem ser atualizadas após rever as fichas.
+
 ## Limitações e próximos passos
 
 - No modo amostral, vizinhos ausentes podem reduzir o Jaccard e fragmentar a rede.
@@ -307,9 +355,10 @@ a diferença entre suas médias não isola um efeito da variante escrita.
 - Os desenhos usam uma seleção explícita de caracteres e limitam palavras por caractere;
   as estatísticas usam toda a seleção atual, e o layout não é medida de similaridade.
 
-Próximo passo suficiente para este escopo: selecionar alguns caracteres com mais
-suporte, examinar suas palavras/definições e escrever uma interpretação qualitativa.
-Uma afirmação sobre divergência semântica precisaria dessa validação adicional.
+O passo qualitativo já está incluído nas 20 fichas. Antes de usar suas observações como
+conclusões linguísticas, o grupo deve revisar as leituras e, sobretudo nos contrastes aparentes,
+consultar exemplos de uso. As fichas sustentam uma discussão de palavras específicas,
+sem validar uma afirmação geral de divergência semântica dos caracteres ou das línguas.
 
 Antes da entrega, preencher o link do vídeo.
 
@@ -321,7 +370,7 @@ Antes da entrega, preencher o link do vídeo.
   [licença](https://www.edrdg.org/edrdg/licence.html).
 - Ambos os dicionários são distribuídos sob
   [Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
-  Os CSVs de amostras contêm dados derivados dessas fontes e mantêm esses créditos e licença.
+  Os CSVs de amostras e de análise qualitativa contêm dados derivados dessas fontes e mantêm esses créditos e licença.
 - [NetworkX: redes bipartidas e projeções](https://networkx.org/documentation/stable/reference/algorithms/bipartite.html).
 - Material do professor, conferido no commit `d28b316438a64d9abd5f754a66685d507d5b2764`:
   [semana 2, aula 3](https://github.com/ivanovitchm/datastructure/blob/main/lessons/week02/lesson03.ipynb),

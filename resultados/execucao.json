@@ -30,6 +30,37 @@
     "modo": "manual",
     "arquivo": "selecao_caracteres.json"
   },
+  "analise_qualitativa": {
+    "limite_caracteres": 20,
+    "selecionados": 20,
+    "criterio": "maior menor grau nas tres redes; desempates: soma dos graus e Unicode",
+    "caracteres": [
+      "子",
+      "大",
+      "人",
+      "不",
+      "一",
+      "山",
+      "水",
+      "中",
+      "心",
+      "生",
+      "地",
+      "天",
+      "自",
+      "性",
+      "小",
+      "家",
+      "白",
+      "海",
+      "有",
+      "化"
+    ],
+    "fichas_com_evidencia_conferida": 20,
+    "revisao_grupo": "pendente",
+    "selecao": "selecao_qualitativa.csv",
+    "fichas": "analise_qualitativa_20.csv"
+  },
   "versoes": {
     "python": "3.12.14",
     "networkx": "3.4.2",

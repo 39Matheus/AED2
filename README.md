@@ -194,4 +194,4 @@ Antes da entrega, preencher os integrantes e o link do vídeo.
   [Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
   Os CSVs de amostras contêm dados derivados dessas fontes e mantêm esses créditos e licença.
 - [NetworkX: redes bipartidas e projeções](https://networkx.org/documentation/stable/reference/algorithms/bipartite.html).
-- Material da disciplina, semanas 2, 4 e 6, e enunciado do projeto da Unidade 1. Disponível em [Github do Professor](https://github.com/ivanovitchm/datastructure)
+- Material da disciplina, semanas 2, 4 e 6. Disponível no [Github do Professor](https://github.com/ivanovitchm/datastructure)
